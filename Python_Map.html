@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python — map()</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2128;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e6e0;
+    --muted: #888580;
+    --dim: #505050;
+
+    --blue: #5b9cf6;
+    --blue-bg: rgba(91,156,246,0.10);
+    --blue-border: rgba(91,156,246,0.25);
+
+    --green: #4ecb8d;
+    --green-bg: rgba(78,203,141,0.09);
+    --green-border: rgba(78,203,141,0.25);
+
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.10);
+    --purple-border: rgba(167,139,250,0.25);
+
+    --amber: #f9b44a;
+    --amber-bg: rgba(249,180,74,0.10);
+    --amber-border: rgba(249,180,74,0.25);
+
+    --coral: #f07060;
+    --coral-bg: rgba(240,112,96,0.10);
+    --coral-border: rgba(240,112,96,0.25);
+
+    --kw: #a78bfa;
+    --fn: #5b9cf6;
+    --num: #f9b44a;
+    --str: #4ecb8d;
+    --cm: #505050;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(14,15,17,0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+  }
+
+  .nav-logo {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .nav-logo span { color: var(--blue); }
+
+  .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+  .nav-links a {
+    font-size: 12px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* LAYOUT */
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 96px 2rem 6rem;
+  }
+
+  /* HERO */
+  .hero { margin-bottom: 3.5rem; }
+
+  .hero-eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px; color: var(--blue);
+    letter-spacing: 0.12em; margin-bottom: 1rem;
+    opacity: 0; animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(38px, 6vw, 58px);
+    line-height: 1.08; margin-bottom: 1.1rem;
+    opacity: 0; animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .hero h1 em { font-style: italic; color: var(--blue); }
+
+  .hero-sub {
+    font-size: 15px; color: var(--muted); max-width: 520px;
+    opacity: 0; animation: fadeUp 0.6s 0.32s forwards;
+  }
+  .hero-sub code {
+    font-family: 'Fira Code', monospace; font-size: 13px;
+    background: var(--surface2); padding: 1px 6px; border-radius: 3px; color: var(--text);
+  }
+
+  /* SYNTAX CARD */
+  .syntax-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 12px;
+    padding: 1.6rem 1.8rem;
+    margin-bottom: 3.5rem;
+    opacity: 0; animation: fadeUp 0.6s 0.42s forwards;
+  }
+
+  .syntax-sig {
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(16px, 3vw, 22px);
+    margin-bottom: 1.4rem;
+    line-height: 1.5;
+  }
+
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .param {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+    border-top: 2px solid;
+  }
+  .param.p-fn   { border-color: var(--purple); }
+  .param.p-it   { border-color: var(--blue); }
+  .param.p-ret  { border-color: var(--green); }
+
+  .param-name {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .param.p-fn  .param-name { color: var(--purple); }
+  .param.p-it  .param-name { color: var(--blue); }
+  .param.p-ret .param-name { color: var(--green); }
+
+  .param-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* STEP FLOW */
+  .flow {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 13.5px;
+    line-height: 2;
+  }
+
+  .flow-line { display: flex; align-items: flex-start; gap: 12px; }
+
+  .flow-arrow { color: var(--dim); flex-shrink: 0; padding-top: 2px; }
+
+  .flow-left  { color: var(--muted); min-width: 220px; }
+  .flow-right { color: var(--dim); font-size: 12px; }
+
+  .f-inp  { color: var(--str); }
+  .f-sp   { color: var(--fn); }
+  .f-map  { color: var(--purple); }
+  .f-lst  { color: var(--blue); }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 3rem;
+    opacity: 0; animation: fadeUp 0.5s forwards;
+  }
+  .section:nth-of-type(1) { animation-delay: 0.5s; }
+  .section:nth-of-type(2) { animation-delay: 0.6s; }
+  .section:nth-of-type(3) { animation-delay: 0.7s; }
+  .section:nth-of-type(4) { animation-delay: 0.8s; }
+  .section:nth-of-type(5) { animation-delay: 0.9s; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem;
+  }
+
+  .tag {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 4px; border: 0.5px solid;
+  }
+  .tag-blue   { color: var(--blue);   background: var(--blue-bg);   border-color: var(--blue-border); }
+  .tag-purple { color: var(--purple); background: var(--purple-bg); border-color: var(--purple-border); }
+  .tag-green  { color: var(--green);  background: var(--green-bg);  border-color: var(--green-border); }
+  .tag-amber  { color: var(--amber);  background: var(--amber-bg);  border-color: var(--amber-border); }
+  .tag-coral  { color: var(--coral);  background: var(--coral-bg);  border-color: var(--coral-border); }
+
+  .section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; font-weight: 400; color: var(--text);
+  }
+
+  .definition {
+    font-size: 15px; color: var(--muted); line-height: 1.75;
+    margin-bottom: 1.2rem;
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--border2);
+  }
+  .definition code {
+    font-family: 'Fira Code', monospace; font-size: 13px;
+    background: var(--surface2); padding: 1px 5px; border-radius: 3px; color: var(--text);
+  }
+
+  /* CODE */
+  .code-wrap { margin-bottom: 0.9rem; }
+
+  .code-label {
+    font-family: 'Fira Code', monospace; font-size: 10px;
+    color: var(--dim); letter-spacing: 0.08em; margin-bottom: 6px; padding-left: 2px;
+  }
+
+  .code-block {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: 'Fira Code', monospace;
+    font-size: 13.5px; line-height: 1.72; color: var(--text); white-space: pre;
+  }
+
+  .kw  { color: var(--kw); }
+  .fn  { color: var(--fn); }
+  .num { color: var(--num); }
+  .str { color: var(--str); }
+  .cm  { color: var(--cm); font-style: italic; }
+
+  /* OUTPUT */
+  .output {
+    background: rgba(78,203,141,0.05);
+    border: 0.5px solid var(--green-border);
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem; margin-bottom: 0.9rem;
+  }
+  .output-label {
+    font-family: 'Fira Code', monospace; font-size: 10px;
+    color: var(--green); letter-spacing: 0.1em; text-transform: uppercase;
+    display: block; margin-bottom: 3px; opacity: 0.7;
+  }
+  .output pre {
+    font-family: 'Fira Code', monospace; font-size: 13.5px;
+    color: var(--green); line-height: 1.6;
+  }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 8px; padding: 0.9rem 1.2rem; margin-bottom: 1rem;
+    font-size: 14px; line-height: 1.65;
+    display: flex; gap: 10px; align-items: flex-start; border: 0.5px solid;
+  }
+  .callout-icon { flex-shrink: 0; margin-top: 2px; }
+  .callout code {
+    font-family: 'Fira Code', monospace; font-size: 12.5px;
+    background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px;
+  }
+  .callout-info { background: var(--green-bg);  border-color: var(--green-border);  color: #3aaa71; }
+  .callout-note { background: var(--purple-bg); border-color: var(--purple-border); color: #9171e0; }
+  .callout-tip  { background: var(--blue-bg);   border-color: var(--blue-border);   color: #4a82d0; }
+  .callout-warn { background: var(--amber-bg);  border-color: var(--amber-border);  color: #c9913a; }
+
+  /* EXAMPLES GRID */
+  .ex-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+
+  .ex-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+  }
+  .ex-card h4 {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ex-card.c-blue   h4 { color: var(--blue); }
+  .ex-card.c-purple h4 { color: var(--purple); }
+  .ex-card.c-green  h4 { color: var(--green); }
+  .ex-card.c-amber  h4 { color: var(--amber); }
+
+  .ex-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* COMPARE */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .compare-col h3 {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: inline-block; padding: 3px 8px; border-radius: 4px;
+  }
+  .compare-col.map-col h3  { color: var(--purple); background: var(--purple-bg); }
+  .compare-col.list-col h3 { color: var(--blue);   background: var(--blue-bg); }
+
+  hr {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  footer {
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px; color: var(--dim);
+    padding: 2rem;
+    border-top: 0.5px solid var(--border);
+  }
+  footer span { color: var(--blue); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 580px) {
+    .params-grid { grid-template-columns: 1fr; }
+    .ex-grid     { grid-template-columns: 1fr; }
+    .compare     { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo"><span>map()</span> · Python</span>
+  <ul class="nav-links">
+    <li><a href="#main">Главный пример</a></li>
+    <li><a href="#examples">Примеры</a></li>
+    <li><a href="#patterns">Паттерны</a></li>
+    <li><a href="#vs">vs comprehension</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hero-eyebrow"># Python · Конспект</p>
+    <h1>Функция<br><em>map()</em></h1>
+    <p class="hero-sub">Применяет функцию к каждому элементу итерируемого объекта <strong style="color:var(--text)">по одному</strong> и возвращает итератор с результатами.</p>
+  </div>
+
+  <!-- SYNTAX CARD -->
+  <div class="syntax-card">
+    <div class="code-label"># синтаксис</div>
+    <div class="syntax-sig">
+      <span style="color:var(--fn)">map</span><span style="color:var(--dim)">(</span><span style="color:var(--purple)">функция</span><span style="color:var(--dim)">,</span> <span style="color:var(--blue)">итерируемый_объект</span><span style="color:var(--dim)">)</span>
+    </div>
+    <div class="params-grid">
+      <div class="param p-fn">
+        <div class="param-name">функция</div>
+        <div class="param-desc">что применить к каждому элементу — <code style="font-family:'Fira Code',monospace;font-size:11px;">int</code>, <code style="font-family:'Fira Code',monospace;font-size:11px;">str</code>, <code style="font-family:'Fira Code',monospace;font-size:11px;">lambda</code>, <code style="font-family:'Fira Code',monospace;font-size:11px;">def</code></div>
+      </div>
+      <div class="param p-it">
+        <div class="param-name">итерируемый</div>
+        <div class="param-desc">список, строка, кортеж, генератор и т.д.</div>
+      </div>
+      <div class="param p-ret">
+        <div class="param-name">возвращает</div>
+        <div class="param-desc">объект-итератор — нужно обернуть в <code style="font-family:'Fira Code',monospace;font-size:11px;">list()</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN EXAMPLE -->
+  <div class="section" id="main">
+    <div class="section-header">
+      <span class="tag tag-blue">Главный пример</span>
+      <h2>Ввод чисел из строки</h2>
+    </div>
+    <p class="definition">
+      <code>input()</code> всегда возвращает строку. <code>split()</code> делит по пробелам — но элементы остаются строками, а не числами. <code>map(int, ...)</code> превращает каждую строку в <code>int</code>.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-label"># классический паттерн</div>
+      <div class="code-block"><pre>a = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split()))</pre></div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-line">
+        <span class="flow-arrow">  </span>
+        <span class="flow-left"><span class="f-inp">"12 123 4324 5235 121"</span></span>
+        <span class="flow-right">← input() возвращает строку</span>
+      </div>
+      <div class="flow-line">
+        <span class="flow-arrow">↓</span>
+        <span class="flow-left"><span class="f-sp">.split()</span></span>
+        <span class="flow-right">делит по пробелам</span>
+      </div>
+      <div class="flow-line">
+        <span class="flow-arrow">  </span>
+        <span class="flow-left"><span style="color:var(--muted)">['12', '123', '4324', ...]</span></span>
+        <span class="flow-right">← список строк, не чисел!</span>
+      </div>
+      <div class="flow-line">
+        <span class="flow-arrow">↓</span>
+        <span class="flow-left"><span class="f-map">map(int, ...)</span></span>
+        <span class="flow-right">int() к каждому элементу</span>
+      </div>
+      <div class="flow-line">
+        <span class="flow-arrow">↓</span>
+        <span class="flow-left"><span class="f-lst">list(...)</span></span>
+        <span class="flow-right">итератор → список</span>
+      </div>
+      <div class="flow-line">
+        <span class="flow-arrow">  </span>
+        <span class="flow-left"><span style="color:var(--green)">[12, 123, 4324, 5235, 121]</span></span>
+        <span class="flow-right">← настоящие int ✓</span>
+      </div>
+    </div>
+
+    <div class="callout callout-note">
+      <span class="callout-icon">→</span>
+      <span><code>map()</code> возвращает объект-итератор, а не список. Чтобы получить список — оборачиваем в <code>list()</code>. Можно обернуть в <code>tuple()</code> или <code>set()</code> — зависит от задачи.</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- EXAMPLES -->
+  <div class="section" id="examples">
+    <div class="section-header">
+      <span class="tag tag-purple">Примеры</span>
+      <h2>Разные случаи</h2>
+    </div>
+
+    <div class="ex-grid" style="margin-bottom:1.2rem;">
+      <div class="ex-card c-blue">
+        <h4>map + int / str / float</h4>
+        <p>Встроенные функции как оператор — самый частый случай.</p>
+      </div>
+      <div class="ex-card c-purple">
+        <h4>map + lambda</h4>
+        <p>Когда нужна простая операция без отдельной функции.</p>
+      </div>
+      <div class="ex-card c-green">
+        <h4>map + def</h4>
+        <p>Когда логика сложнее одной строки.</p>
+      </div>
+      <div class="ex-card c-amber">
+        <h4>map + два списка</h4>
+        <p>Применяет функцию к парам элементов из двух итерируемых.</p>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># преобразование типов</div>
+      <div class="code-block"><pre><span class="cm"># строки → числа</span>
+nums = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, [<span class="str">'1'</span>, <span class="str">'2'</span>, <span class="str">'3'</span>, <span class="str">'4'</span>]))
+<span class="fn">print</span>(nums)         <span class="cm"># → [1, 2, 3, 4]</span>
+
+<span class="cm"># числа → строки</span>
+strs = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">str</span>, [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]))
+<span class="fn">print</span>(strs)         <span class="cm"># → ['10', '20', '30']</span>
+
+<span class="cm"># строки → float</span>
+fl = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">float</span>, [<span class="str">'1.5'</span>, <span class="str">'2.7'</span>, <span class="str">'3.0'</span>]))
+<span class="fn">print</span>(fl)           <span class="cm"># → [1.5, 2.7, 3.0]</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[1, 2, 3, 4]
+['10', '20', '30']
+[1.5, 2.7, 3.0]</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># map + lambda</div>
+      <div class="code-block"><pre>nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+
+squares = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x: x ** <span class="num">2</span>, nums))
+<span class="fn">print</span>(squares)      <span class="cm"># → [1, 4, 9, 16, 25]</span>
+
+doubled = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x: x * <span class="num">2</span>, nums))
+<span class="fn">print</span>(doubled)      <span class="cm"># → [2, 4, 6, 8, 10]</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[1, 4, 9, 16, 25]
+[2, 4, 6, 8, 10]</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># map + def функция</div>
+      <div class="code-block"><pre><span class="kw">def</span> <span class="fn">add_exclaim</span>(word):
+    <span class="kw">return</span> word + <span class="str">'!'</span>
+
+words = [<span class="str">'привет'</span>, <span class="str">'пока'</span>, <span class="str">'круто'</span>]
+result = <span class="fn">list</span>(<span class="fn">map</span>(add_exclaim, words))
+<span class="fn">print</span>(result)       <span class="cm"># → ['привет!', 'пока!', 'круто!']</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>['привет!', 'пока!', 'круто!']</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># map с двумя списками</div>
+      <div class="code-block"><pre>a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+
+result = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x, y: x + y, a, b))
+<span class="fn">print</span>(result)       <span class="cm"># → [11, 22, 33]</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[11, 22, 33]</pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- PATTERNS -->
+  <div class="section" id="patterns">
+    <div class="section-header">
+      <span class="tag tag-green">Паттерны</span>
+      <h2>Типичное применение в задачах</h2>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">★</span>
+      <span>На соревнованиях и задачах <code>map(int, input().split())</code> — один из самых частых однострочников.</span>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># ввод одной строки чисел</div>
+      <div class="code-block"><pre>a = <span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split()))
+<span class="cm"># ввод: "5 10 15 20"  →  [5, 10, 15, 20]</span></pre></div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># ввод нескольких переменных сразу</div>
+      <div class="code-block"><pre>x, y, z = <span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split())
+<span class="cm"># ввод: "3 7 12"  →  x=3, y=7, z=12</span></pre></div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># матрица — несколько строк</div>
+      <div class="code-block"><pre>n = <span class="fn">int</span>(<span class="fn">input</span>())
+matrix = [<span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, <span class="fn">input</span>().split())) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(n)]
+<span class="cm"># ввод 3 строки по 3 числа  →  [[...], [...], [...]]</span></pre></div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- VS COMPREHENSION -->
+  <div class="section" id="vs">
+    <div class="section-header">
+      <span class="tag tag-amber">Сравнение</span>
+      <h2>map() vs list comprehension</h2>
+    </div>
+
+    <div class="compare">
+      <div class="compare-col map-col">
+        <h3>map()</h3>
+        <div class="code-block"><pre><span class="fn">list</span>(<span class="fn">map</span>(<span class="fn">int</span>, nums))
+
+<span class="fn">list</span>(<span class="fn">map</span>(
+  <span class="kw">lambda</span> x: x**<span class="num">2</span>, nums
+))</pre></div>
+      </div>
+      <div class="compare-col list-col">
+        <h3>comprehension</h3>
+        <div class="code-block"><pre>[<span class="fn">int</span>(x) <span class="kw">for</span> x <span class="kw">in</span> nums]
+
+[x**<span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> nums]</pre></div>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">→</span>
+      <span>Используй <code>map()</code> когда функция уже есть — <code>int</code>, <code>str</code>, <code>float</code>. Это короче и читабельнее. List comprehension лучше когда нужно писать выражение вручную.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Python · <span>map()</span> · конспект
+</footer>
+
+</body>
+</html>

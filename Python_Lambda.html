@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python — Lambda функции</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2128;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e6e0;
+    --muted: #888580;
+    --dim: #555250;
+
+    --blue: #5b9cf6;
+    --blue-bg: rgba(91,156,246,0.10);
+    --blue-border: rgba(91,156,246,0.25);
+
+    --green: #4ecb8d;
+    --green-bg: rgba(78,203,141,0.10);
+    --green-border: rgba(78,203,141,0.25);
+
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.10);
+    --purple-border: rgba(167,139,250,0.25);
+
+    --amber: #f9b44a;
+    --amber-bg: rgba(249,180,74,0.10);
+    --amber-border: rgba(249,180,74,0.25);
+
+    --coral: #f07060;
+    --coral-bg: rgba(240,112,96,0.10);
+    --coral-border: rgba(240,112,96,0.25);
+
+    --kw: #a78bfa;
+    --fn: #5b9cf6;
+    --num: #f9b44a;
+    --str: #4ecb8d;
+    --cm: #555250;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(14,15,17,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+  }
+
+  .nav-logo {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .nav-logo span { color: var(--purple); }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 100px 2rem 6rem;
+  }
+
+  /* HERO */
+  .hero { margin-bottom: 4rem; }
+
+  .hero-eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--purple);
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 54px);
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .hero h1 em { font-style: italic; color: var(--purple); }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 520px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  /* ANATOMY BANNER */
+  .anatomy {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 12px;
+    padding: 1.5rem 1.8rem;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.45s forwards;
+  }
+
+  .anatomy-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .anatomy-code {
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(15px, 3vw, 22px);
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+  }
+
+  .anatomy-parts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .anat-part {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    border-top: 2px solid;
+  }
+
+  .anat-part.p-kw   { border-color: var(--purple); }
+  .anat-part.p-arg  { border-color: var(--blue); }
+  .anat-part.p-col  { border-color: var(--dim); }
+  .anat-part.p-body { border-color: var(--green); }
+
+  .anat-name {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .anat-part.p-kw   .anat-name { color: var(--purple); }
+  .anat-part.p-arg  .anat-name { color: var(--blue); }
+  .anat-part.p-col  .anat-name { color: var(--dim); }
+  .anat-part.p-body .anat-name { color: var(--green); }
+
+  .anat-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.5s forwards;
+  }
+
+  .section:nth-of-type(1) { animation-delay: 0.5s; }
+  .section:nth-of-type(2) { animation-delay: 0.6s; }
+  .section:nth-of-type(3) { animation-delay: 0.7s; }
+  .section:nth-of-type(4) { animation-delay: 0.8s; }
+  .section:nth-of-type(5) { animation-delay: 0.9s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+  }
+
+  .tag {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 0.5px solid;
+  }
+
+  .tag-purple { color: var(--purple); background: var(--purple-bg); border-color: var(--purple-border); }
+  .tag-blue   { color: var(--blue);   background: var(--blue-bg);   border-color: var(--blue-border); }
+  .tag-green  { color: var(--green);  background: var(--green-bg);  border-color: var(--green-border); }
+  .tag-amber  { color: var(--amber);  background: var(--amber-bg);  border-color: var(--amber-border); }
+  .tag-coral  { color: var(--coral);  background: var(--coral-bg);  border-color: var(--coral-border); }
+
+  .section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .definition {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 1.2rem;
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--border2);
+  }
+
+  .definition code {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--text);
+  }
+
+  /* CODE */
+  .code-wrap { margin-bottom: 0.9rem; }
+
+  .code-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    padding-left: 2px;
+  }
+
+  .code-block {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+  }
+
+  .code-block pre {
+    font-family: 'Fira Code', monospace;
+    font-size: 13.5px;
+    line-height: 1.72;
+    color: var(--text);
+    white-space: pre;
+  }
+
+  .kw  { color: var(--kw); }
+  .fn  { color: var(--fn); }
+  .num { color: var(--num); }
+  .str { color: var(--str); }
+  .cm  { color: var(--cm); font-style: italic; }
+
+  /* OUTPUT */
+  .output {
+    background: rgba(78,203,141,0.05);
+    border: 0.5px solid var(--green-border);
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .output-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+    opacity: 0.7;
+  }
+
+  .output pre {
+    font-family: 'Fira Code', monospace;
+    font-size: 13.5px;
+    color: var(--green);
+    line-height: 1.6;
+  }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 1rem;
+    font-size: 14px;
+    line-height: 1.65;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 0.5px solid;
+  }
+
+  .callout-icon { flex-shrink: 0; margin-top: 2px; }
+  .callout code {
+    font-family: 'Fira Code', monospace;
+    font-size: 12.5px;
+    background: rgba(255,255,255,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .callout-warn  { background: var(--coral-bg);   border-color: var(--coral-border);   color: #c96050; }
+  .callout-info  { background: var(--green-bg);   border-color: var(--green-border);   color: #3aaa71; }
+  .callout-note  { background: var(--purple-bg);  border-color: var(--purple-border);  color: #9171e0; }
+  .callout-tip   { background: var(--blue-bg);    border-color: var(--blue-border);    color: #4a82d0; }
+
+  /* COMPARE: lambda vs def */
+  .compare-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.2rem;
+  }
+
+  .compare-col h3 {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .compare-col.lambda h3 { color: var(--purple); background: var(--purple-bg); }
+  .compare-col.defn   h3 { color: var(--blue);   background: var(--blue-bg); }
+
+  /* USE CASES GRID */
+  .usecases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.2rem;
+  }
+
+  .usecase-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+  }
+
+  .usecase-card h4 {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    color: var(--amber);
+  }
+
+  .usecase-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 0.6rem;
+  }
+
+  hr {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  footer {
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    padding: 2rem;
+    border-top: 0.5px solid var(--border);
+  }
+
+  footer span { color: var(--purple); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .anatomy-parts { grid-template-columns: 1fr 1fr; }
+    .compare-wrap  { grid-template-columns: 1fr; }
+    .usecases      { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo"><span>lambda</span> · Python</span>
+  <ul class="nav-links">
+    <li><a href="#syntax">Синтаксис</a></li>
+    <li><a href="#args">Аргументы</a></li>
+    <li><a href="#usage">Применение</a></li>
+    <li><a href="#limits">Ограничения</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hero-eyebrow"># Python · Конспект</p>
+    <h1>Анонимные функции<br><em>lambda</em></h1>
+    <p class="hero-sub">Функции без имени, записанные в одну строку. Идеальны для коротких операций внутри <code style="font-family:'Fira Code',monospace;font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:3px;">map</code>, <code style="font-family:'Fira Code',monospace;font-size:13px;background:var(--surface2);padding:1px 6px;border-radius:3px;">filter</code> и сортировок.</p>
+  </div>
+
+  <!-- ANATOMY -->
+  <div class="anatomy" id="syntax">
+    <p class="anatomy-label"># анатомия lambda</p>
+    <div class="anatomy-code">
+      <span style="color:var(--purple)">lambda</span>
+      <span style="color:var(--blue)"> x, y</span>
+      <span style="color:var(--dim)">:</span>
+      <span style="color:var(--green)"> x + y</span>
+    </div>
+    <div class="anatomy-parts">
+      <div class="anat-part p-kw">
+        <div class="anat-name">keyword</div>
+        <div class="anat-desc">ключевое слово, объявляет анонимную функцию</div>
+      </div>
+      <div class="anat-part p-arg">
+        <div class="anat-name">аргументы</div>
+        <div class="anat-desc">один или несколько, через запятую</div>
+      </div>
+      <div class="anat-part p-col">
+        <div class="anat-name">двоеточие</div>
+        <div class="anat-desc">разделяет аргументы и тело</div>
+      </div>
+      <div class="anat-part p-body">
+        <div class="anat-name">тело / выражение</div>
+        <div class="anat-desc">одно выражение, результат возвращается автоматически</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BASIC -->
+  <div class="section">
+    <div class="section-header">
+      <span class="tag tag-purple">Основы</span>
+      <h2>Базовый синтаксис</h2>
+    </div>
+    <p class="definition">
+      Анонимная функция — функция <strong style="color:var(--text)">без имени</strong>, записанная в одну строку.
+      Результат выражения возвращается автоматически — <code>return</code> писать не нужно.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-label"># базовый пример</div>
+      <div class="code-block"><pre><span class="cm"># обычная функция</span>
+<span class="kw">def</span> <span class="fn">square</span>(x):
+    <span class="kw">return</span> x ** <span class="num">2</span>
+
+<span class="cm"># то же самое через lambda</span>
+a = <span class="kw">lambda</span> x: x ** <span class="num">2</span>
+
+<span class="fn">print</span>(a(<span class="num">10</span>))     <span class="cm"># → 100</span>
+<span class="fn">print</span>(a(<span class="num">5</span>))      <span class="cm"># → 25</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>100
+25</pre>
+    </div>
+
+    <div class="callout callout-note">
+      <span class="callout-icon">λ</span>
+      <span>Lambda-функция — это полноценный объект. Её можно присвоить переменной, передать как аргумент или вернуть из другой функции.</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ARGS -->
+  <div class="section" id="args">
+    <div class="section-header">
+      <span class="tag tag-blue">Аргументы</span>
+      <h2>Несколько аргументов</h2>
+    </div>
+    <p class="definition">
+      Lambda принимает любое количество аргументов через запятую — так же как обычная функция.
+      Можно задавать значения по умолчанию.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-label"># два аргумента</div>
+      <div class="code-block"><pre>add = <span class="kw">lambda</span> x, y: x + y
+<span class="fn">print</span>(add(<span class="num">3</span>, <span class="num">7</span>))         <span class="cm"># → 10</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>10</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># аргумент по умолчанию</div>
+      <div class="code-block"><pre>power = <span class="kw">lambda</span> x, n=<span class="num">2</span>: x ** n
+
+<span class="fn">print</span>(power(<span class="num">5</span>))          <span class="cm"># → 25  (n=2 по умолчанию)</span>
+<span class="fn">print</span>(power(<span class="num">5</span>, <span class="num">3</span>))       <span class="cm"># → 125</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>25
+125</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># три аргумента</div>
+      <div class="code-block"><pre>volume = <span class="kw">lambda</span> l, w, h: l * w * h
+<span class="fn">print</span>(volume(<span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>))   <span class="cm"># → 24</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>24</pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- USAGE -->
+  <div class="section" id="usage">
+    <div class="section-header">
+      <span class="tag tag-green">Применение</span>
+      <h2>Внутри map, filter, sort</h2>
+    </div>
+    <p class="definition">
+      Главная сила lambda — передача как аргумент в функции высшего порядка.
+      Не нужно определять отдельную функцию ради одной операции.
+    </p>
+
+    <div class="usecases">
+      <div class="usecase-card">
+        <h4>map()</h4>
+        <p>Применяет функцию к каждому элементу последовательности.</p>
+      </div>
+      <div class="usecase-card">
+        <h4>filter()</h4>
+        <p>Оставляет только элементы, для которых функция вернула <code style="font-family:'Fira Code',monospace;font-size:11px;background:var(--surface2);padding:1px 4px;border-radius:3px;color:var(--text);">True</code>.</p>
+      </div>
+      <div class="usecase-card">
+        <h4>sorted() / sort()</h4>
+        <p>Задаёт ключ сортировки через параметр <code style="font-family:'Fira Code',monospace;font-size:11px;background:var(--surface2);padding:1px 4px;border-radius:3px;color:var(--text);">key=</code>.</p>
+      </div>
+      <div class="usecase-card">
+        <h4>reduce()</h4>
+        <p>Сворачивает последовательность в одно значение (из <code style="font-family:'Fira Code',monospace;font-size:11px;background:var(--surface2);padding:1px 4px;border-radius:3px;color:var(--text);">functools</code>).</p>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># map — применить ко всем элементам</div>
+      <div class="code-block"><pre>nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+
+squares = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x: x ** <span class="num">2</span>, nums))
+<span class="fn">print</span>(squares)            <span class="cm"># → [1, 4, 9, 16, 25]</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[1, 4, 9, 16, 25]</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># filter — только чётные</div>
+      <div class="code-block"><pre>nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]
+
+evens = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> x: x % <span class="num">2</span> == <span class="num">0</span>, nums))
+<span class="fn">print</span>(evens)              <span class="cm"># → [2, 4, 6]</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[2, 4, 6]</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># sorted — сортировка по второму элементу</div>
+      <div class="code-block"><pre>pairs = [(<span class="str">'banana'</span>, <span class="num">3</span>), (<span class="str">'apple'</span>, <span class="num">1</span>), (<span class="str">'cherry'</span>, <span class="num">2</span>)]
+
+result = <span class="fn">sorted</span>(pairs, key=<span class="kw">lambda</span> x: x[<span class="num">1</span>])
+<span class="fn">print</span>(result)
+<span class="cm"># → [('apple', 1), ('cherry', 2), ('banana', 3)]</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[('apple', 1), ('cherry', 2), ('banana', 3)]</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># reduce — сумма всех элементов</div>
+      <div class="code-block"><pre><span class="kw">from</span> functools <span class="kw">import</span> reduce
+
+nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+total = <span class="fn">reduce</span>(<span class="kw">lambda</span> acc, x: acc + x, nums)
+<span class="fn">print</span>(total)              <span class="cm"># → 15</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>15</pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- LIMITS -->
+  <div class="section" id="limits">
+    <div class="section-header">
+      <span class="tag tag-coral">Ограничения</span>
+      <h2>Что нельзя делать</h2>
+    </div>
+    <p class="definition">
+      Lambda содержит <strong style="color:var(--text)">только одно выражение</strong>.
+      Присваивание, операторы <code>if/else</code> как блок, циклы <code>for</code>, <code>while</code> — всё это недоступно.
+    </p>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">✗</span>
+      <span>Присваивание внутри lambda и другие операции, которые меняют аргумент — <strong>вызовут ошибку</strong>. Lambda только вычисляет и возвращает выражение.</span>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># ошибки — так нельзя</div>
+      <div class="code-block"><pre><span class="cm"># ❌ присваивание — SyntaxError</span>
+bad = <span class="kw">lambda</span> x: x = x + <span class="num">1</span>
+
+<span class="cm"># ❌ несколько строк — SyntaxError</span>
+bad = <span class="kw">lambda</span> x:
+    <span class="kw">return</span> x + <span class="num">1</span>
+
+<span class="cm"># ❌ цикл — SyntaxError</span>
+bad = <span class="kw">lambda</span> x: <span class="kw">for</span> i <span class="kw">in</span> x: <span class="fn">print</span>(i)</pre></div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># ✅ можно — тернарный оператор</div>
+      <div class="code-block"><pre><span class="cm"># условие через тернарный оператор — ок</span>
+clamp = <span class="kw">lambda</span> x: x <span class="kw">if</span> x > <span class="num">0</span> <span class="kw">else</span> <span class="num">0</span>
+
+<span class="fn">print</span>(clamp(<span class="num">5</span>))    <span class="cm"># → 5</span>
+<span class="fn">print</span>(clamp(-<span class="num">3</span>))   <span class="cm"># → 0</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>5
+0</pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- LAMBDA vs DEF -->
+  <div class="section">
+    <div class="section-header">
+      <span class="tag tag-amber">Сравнение</span>
+      <h2>lambda vs def</h2>
+    </div>
+
+    <div class="compare-wrap">
+      <div class="compare-col lambda">
+        <h3>lambda</h3>
+        <div class="code-block"><pre><span class="kw">lambda</span> x: x ** <span class="num">2</span></pre></div>
+      </div>
+      <div class="compare-col defn">
+        <h3>def</h3>
+        <div class="code-block"><pre><span class="kw">def</span> <span class="fn">square</span>(x):
+    <span class="kw">return</span> x ** <span class="num">2</span></pre></div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">→</span>
+      <span>Используй <code>lambda</code> для коротких одноразовых операций внутри других функций. Для сложной логики — всегда <code>def</code>, это читабельнее.</span>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># итог — типичный паттерн использования</div>
+      <div class="code-block"><pre>students = [
+    {<span class="str">'name'</span>: <span class="str">'Алия'</span>,   <span class="str">'grade'</span>: <span class="num">88</span>},
+    {<span class="str">'name'</span>: <span class="str">'Данияр'</span>, <span class="str">'grade'</span>: <span class="num">95</span>},
+    {<span class="str">'name'</span>: <span class="str">'Мадина'</span>, <span class="str">'grade'</span>: <span class="num">76</span>},
+]
+
+<span class="cm"># сортируем по оценке (по убыванию)</span>
+top = <span class="fn">sorted</span>(students, key=<span class="kw">lambda</span> s: s[<span class="str">'grade'</span>], reverse=<span class="kw">True</span>)
+
+<span class="kw">for</span> s <span class="kw">in</span> top:
+    <span class="fn">print</span>(s[<span class="str">'name'</span>], s[<span class="str">'grade'</span>])</pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>Данияр 95
+Алия 88
+Мадина 76</pre>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Python · <span>lambda</span> функции · конспект
+</footer>
+
+</body>
+</html>
