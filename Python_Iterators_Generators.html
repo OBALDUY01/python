@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python — Итераторы и Генераторы</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2128;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8e6e0;
+    --muted: #888580;
+    --dim: #555250;
+
+    --blue: #5b9cf6;
+    --blue-bg: rgba(91,156,246,0.10);
+    --blue-border: rgba(91,156,246,0.25);
+
+    --green: #4ecb8d;
+    --green-bg: rgba(78,203,141,0.10);
+    --green-border: rgba(78,203,141,0.25);
+
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.10);
+    --purple-border: rgba(167,139,250,0.25);
+
+    --amber: #f9b44a;
+    --amber-bg: rgba(249,180,74,0.10);
+    --amber-border: rgba(249,180,74,0.25);
+
+    --coral: #f07060;
+
+    --kw: #a78bfa;
+    --fn: #5b9cf6;
+    --num: #f9b44a;
+    --str: #4ecb8d;
+    --cm: #555250;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(14,15,17,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+  }
+
+  .nav-logo {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .nav-logo span { color: var(--green); }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  /* LAYOUT */
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 100px 2rem 6rem;
+  }
+
+  /* HERO */
+  .hero {
+    margin-bottom: 4rem;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 0.12em;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--green);
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 500px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    animation: fadeUp 0.5s forwards;
+  }
+
+  .section:nth-child(1) { animation-delay: 0.4s; }
+  .section:nth-child(2) { animation-delay: 0.5s; }
+  .section:nth-child(3) { animation-delay: 0.6s; }
+  .section:nth-child(4) { animation-delay: 0.7s; }
+  .section:nth-child(5) { animation-delay: 0.8s; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.2rem;
+  }
+
+  .tag {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 0.5px solid;
+  }
+
+  .tag-blue   { color: var(--blue);   background: var(--blue-bg);   border-color: var(--blue-border); }
+  .tag-purple { color: var(--purple); background: var(--purple-bg); border-color: var(--purple-border); }
+  .tag-green  { color: var(--green);  background: var(--green-bg);  border-color: var(--green-border); }
+  .tag-amber  { color: var(--amber);  background: var(--amber-bg);  border-color: var(--amber-border); }
+
+  .section h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .definition {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 1.25rem;
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--border2);
+  }
+
+  .definition code {
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    background: var(--surface2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--text);
+  }
+
+  /* PILLS */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.25rem;
+  }
+
+  .pill {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  /* CODE */
+  .code-wrap {
+    margin-bottom: 1rem;
+  }
+
+  .code-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    padding-left: 2px;
+  }
+
+  .code-block {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 1.1rem 1.3rem;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block pre {
+    font-family: 'Fira Code', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre;
+  }
+
+  .kw  { color: var(--kw); }
+  .fn  { color: var(--fn); }
+  .num { color: var(--num); }
+  .str { color: var(--str); }
+  .cm  { color: var(--cm); font-style: italic; }
+
+  /* OUTPUT */
+  .output {
+    background: rgba(78,203,141,0.05);
+    border: 0.5px solid var(--green-border);
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    margin-bottom: 1rem;
+  }
+
+  .output-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+    opacity: 0.7;
+  }
+
+  .output pre {
+    font-family: 'Fira Code', monospace;
+    font-size: 13.5px;
+    color: var(--green);
+    line-height: 1.6;
+  }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 1rem;
+    font-size: 14px;
+    line-height: 1.65;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border: 0.5px solid;
+  }
+
+  .callout-icon { flex-shrink: 0; margin-top: 2px; font-size: 14px; }
+
+  .callout-warn  { background: var(--amber-bg);  border-color: var(--amber-border);  color: #c9913a; }
+  .callout-info  { background: var(--green-bg);  border-color: var(--green-border);  color: #3aaa71; }
+  .callout-note  { background: var(--purple-bg); border-color: var(--purple-border); color: #9171e0; }
+
+  .callout code {
+    font-family: 'Fira Code', monospace;
+    font-size: 12.5px;
+    background: rgba(255,255,255,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* YIELD STEPS */
+  .yield-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+
+  .yield-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--amber-bg);
+    border: 0.5px solid var(--amber-border);
+    color: var(--amber);
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-text {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .step-text code {
+    font-family: 'Fira Code', monospace;
+    font-size: 12.5px;
+    background: var(--surface2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--text);
+  }
+
+  /* COMPARE TABLE */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+  }
+
+  .compare-card h3 {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .compare-card.c-blue  h3 { color: var(--blue); }
+  .compare-card.c-purple h3 { color: var(--purple); }
+  .compare-card.c-green h3 { color: var(--green); }
+
+  .compare-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 3px 0;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .compare-row:last-child { border-bottom: none; }
+  .compare-row .prop { color: var(--dim); }
+  .compare-row .val  { color: var(--text); font-family: 'Fira Code', monospace; font-size: 11px; }
+  .compare-row .yes  { color: var(--green); }
+  .compare-row .no   { color: var(--coral); }
+
+  /* DIVIDER */
+  hr {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    padding: 2rem;
+    border-top: 0.5px solid var(--border);
+  }
+
+  footer span { color: var(--green); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo"><span>python</span> / iterators</span>
+  <ul class="nav-links">
+    <li><a href="#iterable">Iterable</a></li>
+    <li><a href="#iterator">Iterator</a></li>
+    <li><a href="#generator">Generator</a></li>
+    <li><a href="#yield">yield</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <div class="hero">
+    <p class="hero-eyebrow"># Python · Конспект</p>
+    <h1>Итераторы,<br>итерируемые объекты<br>и <em>генераторы</em></h1>
+    <p class="hero-sub">Три концепции, которые лежат в основе любого цикла в Python — и почему генераторы экономят память.</p>
+  </div>
+
+  <!-- ITERABLE -->
+  <div class="section" id="iterable">
+    <div class="section-header">
+      <span class="tag tag-blue">Iterable</span>
+      <h2>Итерируемый объект</h2>
+    </div>
+    <p class="definition">
+      Объект, который предоставляет возможность обходить свои элементы по очереди.
+      Имеет метод <code>__iter__()</code>, который возвращает итератор.
+      Данные хранятся в памяти, обходить можно <strong style="color:var(--text)">много раз</strong>.
+    </p>
+    <div class="pills">
+      <span class="pill">list</span>
+      <span class="pill">str</span>
+      <span class="pill">tuple</span>
+      <span class="pill">set</span>
+      <span class="pill">dict</span>
+      <span class="pill">range</span>
+      <span class="pill">bytes</span>
+    </div>
+    <div class="callout callout-info">
+      <span class="callout-icon">→</span>
+      <span>Любой итерируемый объект можно преобразовать в итератор с помощью <code>iter()</code>.</span>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ITERATOR -->
+  <div class="section" id="iterator">
+    <div class="section-header">
+      <span class="tag tag-purple">Iterator</span>
+      <h2>Итератор</h2>
+    </div>
+    <p class="definition">
+      Объект, который поддерживает функцию <code>next()</code> и помнит, какой элемент будет следующим.
+      Хранит внутреннее состояние (текущую позицию). Движется только вперёд.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-label"># создание итератора и обход</div>
+      <div class="code-block"><pre><span class="kw">s</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+<span class="kw">d</span> = <span class="fn">iter</span>(s)          <span class="cm"># создаём итератор</span>
+
+<span class="fn">print</span>(<span class="fn">next</span>(d))     <span class="cm"># → 1</span>
+<span class="fn">print</span>(<span class="fn">next</span>(d))     <span class="cm"># → 2</span>
+<span class="fn">print</span>(<span class="fn">next</span>(d))     <span class="cm"># → 3</span>
+<span class="cm"># next(d)  →  StopIteration  ← конец</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>1
+2
+3</pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- GENERATOR -->
+  <div class="section" id="generator">
+    <div class="section-header">
+      <span class="tag tag-green">Generator</span>
+      <h2>Генератор</h2>
+    </div>
+    <p class="definition">
+      Особый вид итератора. Элементы <strong style="color:var(--text)">не хранятся в памяти</strong> —
+      вычисляются и отдаются по одному при каждом <code>next()</code>.
+      Пройтись по элементам можно только <strong style="color:var(--text)">один раз</strong>.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-label"># генераторное выражение</div>
+      <div class="code-block"><pre><span class="kw">b</span> = (<span class="kw">i</span> ** <span class="num">2</span> <span class="kw">for</span> <span class="kw">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>))
+
+<span class="fn">print</span>(<span class="fn">list</span>(b))      <span class="cm"># первый проход</span>
+<span class="fn">print</span>(<span class="fn">list</span>(b))      <span class="cm"># второй проход → []</span></pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>[1, 4, 9, 16, 25]
+[]</pre>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <span>Нельзя применить индекс <code>b[0]</code> и узнать длину <code>len(b)</code>. После исчерпания генератор пуст — второй <code>list()</code> вернёт пустой список.</span>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># огромная последовательность — без нагрузки на память</div>
+      <div class="code-block"><pre><span class="cm"># список — попытается хранить 10 млрд чисел ❌</span>
+<span class="kw">s</span> = [<span class="kw">i</span> <span class="kw">for</span> <span class="kw">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10_000_000_000</span>)]
+
+<span class="cm"># генератор — хранит только текущую позицию ✅</span>
+<span class="kw">c</span> = (<span class="kw">i</span> <span class="kw">for</span> <span class="kw">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10_000_000_000</span>))</pre></div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- YIELD -->
+  <div class="section" id="yield">
+    <div class="section-header">
+      <span class="tag tag-amber">yield</span>
+      <h2>Функция-генератор</h2>
+    </div>
+    <p class="definition">
+      Функция с ключевым словом <code>yield</code> вместо <code>return</code>.
+      При вызове возвращает объект-генератор. Выполнение «замораживается» на <code>yield</code> —
+      все локальные переменные сохраняются.
+    </p>
+
+    <div class="callout callout-note">
+      <span class="callout-icon">★</span>
+      <span><code>yield</code> означает «отдать» значение и приостановиться, сохранив всё состояние функции до следующего <code>next()</code>.</span>
+    </div>
+
+    <div class="yield-steps">
+      <div class="yield-step">
+        <span class="step-num">1</span>
+        <span class="step-text">Вызываем функцию → получаем генератор (код ещё <em>не выполняется</em>)</span>
+      </div>
+      <div class="yield-step">
+        <span class="step-num">2</span>
+        <span class="step-text"><code>next()</code> запускает функцию до первого <code>yield</code> → отдаёт значение</span>
+      </div>
+      <div class="yield-step">
+        <span class="step-num">3</span>
+        <span class="step-text">Функция «замораживается» — все локальные переменные сохранены в памяти</span>
+      </div>
+      <div class="yield-step">
+        <span class="step-num">4</span>
+        <span class="step-text">Следующий <code>next()</code> продолжает выполнение с того же места</span>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># пример функции-генератора</div>
+      <div class="code-block"><pre><span class="kw">def</span> <span class="fn">f</span>(a):
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">7</span>):
+        <span class="kw">yield</span> i           <span class="cm"># заморозка здесь</span>
+
+lis = <span class="fn">f</span>(<span class="num">10</span>)               <span class="cm"># генератор создан, код ещё не пошёл</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> lis:
+    <span class="fn">print</span>(i, end=<span class="str">' '</span>)</pre></div>
+    </div>
+    <div class="output">
+      <span class="output-label">вывод</span>
+      <pre>0 1 2 3 4 5 6</pre>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- COMPARE -->
+  <div class="section">
+    <p style="font-family:'Fira Code',monospace;font-size:11px;color:var(--dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;"># сравнение</p>
+    <div class="compare-grid">
+      <div class="compare-card c-blue">
+        <h3>Итерируемый</h3>
+        <div class="compare-row"><span class="prop">проходов</span><span class="val yes">∞</span></div>
+        <div class="compare-row"><span class="prop">память</span><span class="val">O(n)</span></div>
+        <div class="compare-row"><span class="prop">len()</span><span class="val yes">✓</span></div>
+        <div class="compare-row"><span class="prop">индекс</span><span class="val yes">✓</span></div>
+        <div class="compare-row"><span class="prop">создаётся</span><span class="val">[…]</span></div>
+      </div>
+      <div class="compare-card c-purple">
+        <h3>Итератор</h3>
+        <div class="compare-row"><span class="prop">проходов</span><span class="val no">1</span></div>
+        <div class="compare-row"><span class="prop">память</span><span class="val">O(1)</span></div>
+        <div class="compare-row"><span class="prop">len()</span><span class="val no">✗</span></div>
+        <div class="compare-row"><span class="prop">индекс</span><span class="val no">✗</span></div>
+        <div class="compare-row"><span class="val">iter(…)</span></div>
+      </div>
+      <div class="compare-card c-green">
+        <h3>Генератор</h3>
+        <div class="compare-row"><span class="prop">проходов</span><span class="val no">1</span></div>
+        <div class="compare-row"><span class="prop">память</span><span class="val">O(1)</span></div>
+        <div class="compare-row"><span class="prop">len()</span><span class="val no">✗</span></div>
+        <div class="compare-row"><span class="prop">индекс</span><span class="val no">✗</span></div>
+        <div class="compare-row"><span class="val">(…) / yield</span></div>
+      </div>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label"># схема связей</div>
+      <div class="code-block"><pre><span class="cm">Итерируемый объект  ──iter()──►  Итератор  ──next()──►  значение
+                                      ▲
+                                      │
+                               Генератор (частный случай итератора)</span></pre></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Python · <span>итераторы</span> и <span>генераторы</span> · конспект
+</footer>
+
+</body>
+</html>
